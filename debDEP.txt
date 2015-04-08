@@ -1,0 +1,1 @@
+libcrypt-dh-gmp-perl libgmp-dev qemu  apache2 xtightvncviewer libtheora-dev libpng12-dev libopencv-dev pkg-config libtool autoconf automake g++ cpanminus

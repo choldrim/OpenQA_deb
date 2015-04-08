@@ -1,0 +1,63 @@
+% layout 'default';
+% title 'Test results';
+
+% content_for 'head' => begin
+  %= javascript '/javascripts/tests.js'
+  %= javascript '/javascripts/jquery.timeago.js'
+% end
+
+% content_for 'ready_function' => begin
+  is_operator = <%= (is_operator) ? 'true' : 'false' %>;
+  restart_url = "<%= url_for("apiv1_restart", name => 'REPLACEIT') %>";
+  renderTestsList([ <%= join(',', map { $_->id } $jobs->all) %> ]);
+% end
+
+% if (@$running) {
+    <div class="grid_16 box box-shadow">
+	<h2><%= @$running %> jobs are running</h2>
+	%= include 'test/running_table'
+    </div>
+% }
+
+% if ($scheduled && $scheduled->all) {
+    <div class="grid_16 box box-shadow">
+	<h2><%= $scheduled %> scheduled jobs</h2>
+	
+	%= include 'test/scheduled_table'
+    </div>
+% }
+
+<div class="grid_16 box box-shadow">
+
+  <h2>Last <%= $jobs %> finished jobs</h2>
+  % if (is_operator && 0) {
+    <p>
+      <a href="#" id="list-select">Select</a>
+      |
+      <a href="#" id="list-unselect">Unselect</a>
+      |
+      <a href="#" id="list-restart">Restart selected</a>
+      (<span id="list-counter">0</span>)
+    </p>
+    % }
+
+    <div id="relevantbox" style="display: none">
+	%= check_box relevant => '1', 'checked' => 'checked' => (id => 'relevantfilter')
+	%= label_for 'relevantfilter' => 'Show only relevant jobs'
+    </div>
+    
+    <table id="results" class="display compact">
+        <thead>
+            <tr>
+                <th class="name">Medium</th>
+		<th>Test</th>
+		<th>Result</th>
+                <th>Deps</th>
+                <th>Testtime</th>
+            </tr>
+        </thead>
+	<tbody>
+	</tbody>
+    </table>
+</div>
+

@@ -1,0 +1,615 @@
+
+table {
+    /* tables have 10px margin on each side
+     * so we must subtract it to fit the table
+     * into the container */
+    width: calc(100% - 20px);
+}
+
+td { text-align: center; vertical-align: middle; }
+td { padding: 0.3em 0.6em; }
+
+table.table-autostripe tr:nth-of-type(even) { background-color:#f0ffcf; }  /* Lemon ultra-light */
+table.table-autostripe tr:nth-of-type(odd) { background-color:#f9ffeb; }  /* Lemon hyper-light */
+table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {
+  background-color: #f0ffcf;
+}
+table.dataTable.stripe tbody tr.odd.selected, table.dataTable.display tbody tr.odd.selected {
+   background-color: #f9ffeb;
+}
+
+thead { background: #eee; }
+
+.resultok {background-color:#d4f291 ;} 
+.resultpassed {background-color:#d4f291 ;}
+.resultunknown {background-color:#ff9 ;}
+.resultwarning {background-color:#ff9 ;}
+.resultfail {background-color:#faa ;}
+.resultfailed {background-color:#faa ;}
+.resultmissing {background-color: #ddd; }
+.resulttesting {background-color: #9df; }
+.resultscheduled {background-color: #bef; }
+.modcategory li.selected a { font-weight: bold; color: black; }
+
+.textlink a {
+  text-decoration: none;
+  color: #444;
+}
+
+.textlink a:hover {
+  text-decoration: underline;
+  color: #444;
+}
+
+.overview_passed {color: #248509 !important; }		/* dark Lemon */
+.overview_passed a {color: #248509 !important; }
+.overview_unknown {background-color:#ff9 ;}
+.overview_dent {background-color:#ff0 ;}
+.overview_failed {background-color:#fbb ;}
+.overview_incomplete {background-color:#bebebe;}
+.overview_skipped {background-color:#eeff5f;}
+.overview_obsoleted {background-color:#b7b7b7;}
+.overview_parallel_failed {background-color:#e08050 ;}
+.overview_parallel_restarted {background-color:#b0c090 ;}
+.overview_user_cancelled {background-color:#d7d7d7;}
+.overview_user_restarted {background-color:#90c090 ;}
+
+.component { text-align: right; }
+.links { text-align: left; padding-top: 0; }
+
+.tactorytestedlogo {float: right; vertical-align: middle; }
+.sponsors {}
+.subresults {font-size: 80%; }
+.cutofftimeform { margin-left: 2em; }
+
+/* Reference Picture delete Button */
+
+span.refpic{
+  width:80px;
+  text-decoration:none;
+  position:relative;
+  display:block;
+  /*
+  padding:3px;
+  */
+  margin-right:5px;
+  margin-top:3px;
+  float:left;
+}
+
+span.refpic span.delete-icon{
+  visibility:hidden;
+  position:absolute;
+  right:0px;
+  top:2px;
+  /*
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 0.5;
+  */
+}
+
+span.refpic:hover span.delete-icon{
+  visibility:visible;
+}
+
+span.refpic span.result-icon{
+  position:absolute;
+  right:2px;
+  bottom:3px;
+  filter:alpha(opacity=80);
+  -moz-opacity:0.8;
+  -khtml-opacity: 0.8;
+  opacity: 0.8;
+}
+
+span.refpic span.match-icon{
+  position:absolute;
+  left:3px;
+  bottom:3px;
+}
+
+span.refpic span.delete-icon input, button{
+    background: none;
+    padding: none;
+    border: none;
+    color: none;
+    margin: none;
+}
+
+span.refpic img.pic{
+    border: 1px dotted #ccc;
+}
+
+span.refcomppic {
+    width:80px;
+    text-decoration:none;
+    position:relative;
+    display:inline-block;
+    margin-right:5px;
+    padding: 1px;
+}
+
+span.refcomppic.match {
+    border: 3px solid #3399CC;
+    padding: 1px;
+}
+
+span.refcomppic span.result-icon {
+    position:absolute;
+    right:3px;
+    bottom:3px;
+    filter:alpha(opacity=80);
+    -moz-opacity:0.8;
+    -khtml-opacity: 0.8;
+    opacity: 0.8;
+}
+
+span.thumbnail {
+    text-decoration:none;
+    position:relative;
+    display:inline-block;
+    margin: 6px;
+}
+
+.ui-oo-content-wrapper .ui-oo-box-shadow > * >.thumbnail:first-child, .content-wrapper .box > * >.thumbnail:first-child {
+    margin-top: 6px; !important
+}
+
+span.thumbnail.current {
+    box-shadow: 0 0 3px 4px #666;
+}
+
+span.refcomppic span.match-icon {
+    position:absolute;
+    left:4px;
+    bottom:3px;
+}
+
+img.crop-screenshot {
+    background-color: #eeeeee;
+    padding: 1px;
+    border: 2px solid #555555;
+}
+
+img.crop-screenshot-current {
+    background-color: #eeeeee;
+    padding: 1px;
+    border: 2px solid #669900;
+}
+
+/* Recent Issues Hover */
+div.recent-issues-hide {
+  filter:alpha(opacity=60);
+  -moz-opacity:0.6;
+  -khtml-opacity: 0.6;
+  opacity: 0.6;
+}
+
+div.recent-issues-hide:hover {
+  filter:alpha(opacity=100);
+  -moz-opacity:1;
+  -khtml-opacity: 1;
+  opacity: 1;
+}
+
+td img.resborder_ok, td img.resborder_fail, td img.resborder_unk,td img.resborder_na {
+    margin-top: 3px;
+}
+
+img.resborder_ok {
+    border: 3px solid green;
+    padding: 1px;
+}
+
+img.resborder_fail {
+    border: 3px solid red;
+    padding: 1px;
+}
+
+img.resborder_unk {
+    border: 3px solid dimgray;
+    padding: 1px;
+}
+
+img.resborder_na {
+    padding: 4px;
+}
+
+.no_hover:hover {
+   text-decoration: none;
+}
+
+h2.modcategory {
+    margin-top: 0.9em !important;
+}
+
+ul.modcategory {
+    margin-bottom: 0;
+}
+
+li.mod-done,li.mod-current,li.mod-todo {
+    margin: 1px 0 0px 20px;
+    padding: 0 3px;
+    list-style-position: outside;
+}
+
+.modcategory li a:focus, .modcategory li a:hover {
+     background: none;
+}
+
+li.mod-done {
+    list-style-image:url(../images/step-done.png);
+}
+
+li.mod-current {
+    list-style-image:url(../images/step-current.png);
+    font-weight: bold;
+}
+
+li.mod-todo {
+    list-style-image:url(../images/step-todo.png);
+}
+
+a.pauseplay {
+    background: url("../images/pauseplay.png") 0 0 no-repeat;
+    width: 23px;
+    height: 23px;
+    display: inline-block;
+}
+
+a.pauseplay.pause {
+    background-position: 0 0;
+}
+
+a.pauseplay.play {
+    background-position: -23px 0;
+}
+
+#recent-issues a{colo}
+#recent-issues li{padding: 0.73em 0px ; list-style: none;  border-bottom: 1px solid #eee}
+#recent-issues  p{font-style: italic; text-align: center;}
+
+/*.omega{position: relative !important;}*/
+
+.omega img{}
+
+.omega h3{ padding-top: 2em}
+
+.big-button a:link, .big-button a:visited{background-color: #555; margin: 2em; padding: 1.7em 0em; text-align:center; color: #fff; font-size: 1.33em; border-radius: .41em; box-shadow: inset 0px -2em 5px #333, 0px 2px 3px rgba(0,0,0,0.4); text-shadow: 0px -1px 0px #000; text-transform: uppercase; letter-spacing: 1px; font-weight: bold }
+
+.big-button a:hover,.big-button a:focus{background-color:#ccc; color: #222;  box-shadow: inset 0px 2em 5px #eee, 0px 2px 3px rgba(0,0,0,0.4); text-decoration: none !important; text-shadow: 0px 1px 0px #fff}
+
+/* tooltips */
+
+.tooltip {
+  /*cursor: help;*/
+  position: relative;
+}
+.tooltip span.box {
+  margin-left: -999em;
+  position: absolute;
+  padding: 0.8em 1em;
+  opacity: 0.9;
+}
+.tooltip:hover span.box {
+  /*border-radius: 5px 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1); -webkit-box-shadow: 5px 5px rgba(0, 0, 0, 0.1); -moz-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
+  font-family: Calibri, Tahoma, Geneva, sans-serif;*/
+  position: absolute;
+  left: 4.5em;
+  top: 1.3em;
+  z-index: 99;
+  margin-left: 0;
+  width: 150px;
+}
+
+/* tooltips end */
+
+/* progressbar */
+
+/* thanks to http://www.useragentman.com/blog/2012/01/03/cross-browser-html5-progress-bars-in-depth/ */
+
+.pbox {
+    position: relative;
+    z-index: +1;
+}
+
+.pbox progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+/* progressbar end */
+
+
+/* bento theme fixes */
+ul.navigation {
+    width: calc(100% - 20px); /* subtract margin (which is 10px on each side) */
+}
+
+input[type='image'] {
+    border: 0;
+    background-color: none;
+    padding: 0;
+}
+/* bento theme fixes end */
+
+
+/* special table stuff */
+
+.infotbl {
+    border: none;
+    margin: 0 3px 0 3px;
+    width: calc(100% - 6px);
+}
+
+.infotbl td {
+    padding: 0 0 0 0;
+}
+.infotbl img {
+    padding-right: 3px;
+}
+
+td.flags {
+    font-size: 1.5em;
+    width: 1.5em;
+}
+
+.noborder {
+    border: none;
+}
+
+.noborder tr, .noborder td {
+    border: none;
+}
+
+
+/* Live view */
+
+.container_16 .live-sidebar {
+    width: 280px;
+}
+
+
+.container_16 .live-content {
+    min-width: 820px;
+    width: calc(73% + (23% - 280px));
+}
+
+#livelog {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    width: 100%;
+    height: 30em;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+/* User info header */
+
+#user-info {
+    text-align: right;
+}
+
+/* Code view */
+
+tt, pre {
+    font-family: "monospace", monospace;
+    font-size: 90%;
+}
+
+/* Fix chosen incompability */
+
+td .chosen-results {
+    text-align: left;
+}
+
+/* Menu */
+#actions_box ul {
+    list-style: none;
+}
+
+#actions_box ul li {
+    margin-left: 0px;
+}
+
+/* Form on top of the lists (admin area) */
+.list-form {
+    text-align: right;
+}
+
+/* Job setting table */
+table#job_settings td {
+    padding: 2px;
+}
+
+/* Opentip tooltips */
+
+/* Green on top of yellow doesn't sound wise */
+.opentip a {
+  color: inherit;
+}
+.opentip ul li {
+  margin: 0px;
+}
+.opentip h1 {
+  margin: 0px;
+  font-size: 1.1em;
+}
+
+/* Styles for the checkboxes in the results list */
+#results td.id {
+    text-align: right;
+}
+
+table.dataTable td.name {
+    text-align: left;
+}
+table.dataTable td.test {
+    text-align: left;
+}
+
+/* Hide the real checkbox, is too big */
+#results td.id input[type=checkbox] {
+    display: none;
+}
+
+#results td.id .checkbox-wrapper {
+    width: 20px;
+    margin: 0px;
+    position: relative;
+}
+
+/* Drawing the box with pure CSS */
+#results td.id label {
+    cursor: pointer;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    top: 2px;
+    left: -5px;
+    background: #eee;
+    border:1px solid #ddd;
+}
+
+/* Let's draw the tick in the same way */
+#results td.id label:after {
+    opacity: 0.1;
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 2px;
+    background: transparent;
+    top: 1px;
+    left: 1px;
+    border: 2px solid #333;
+    border-top: none;
+    border-right: none;
+
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+/* And change the opacity of the tick based on the state */
+#results td.id label:hover::after {
+    opacity: 0.4;
+}
+
+#results td.id input[type=checkbox]:checked + label:after {
+    opacity: 1;
+}
+
+table.admintable td.editable {
+     text-align: right;
+}
+
+table.admintable .key-value-pair {
+     white-space: nowrap;
+}
+
+table.admintable input[type="text"] {
+     width: 100%;
+     box-sizing: border-box;
+     -webkit-box-sizing:border-box;
+     -moz-box-sizing: border-box;
+}
+
+table.admintable input[type="text"].key {
+     width: 8em;
+}
+
+table.admintable input[type="text"].value {
+     width: 10em;
+}
+
+table.overview td {
+    text-align: left;
+}
+
+table.overview td.name {
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+span.status .fa {
+    font-size: 120%;
+}
+
+.status.fa {
+    font-size: 110%;
+}
+
+.action.fa {
+    font-size: 90%;
+    color: #ccc !important;
+}
+
+table.overview .failedmodule {
+    background-color: #E9F7C9;
+    padding-left: 3px;
+    padding-right: 2px;
+    margin-right: 1ex;
+    border-radius: 3px;
+    border: 1px solid #D2DFB5;
+}
+    
+.state_scheduled.fa {
+    color: #CCA66A;
+}
+
+.state_obsolete.fa {
+    color: #615245;
+}
+
+.state_running.fa {
+    color: #F3F929;
+}
+    
+.result_passed a i.fa { color: #75C195 !important; }		/* dark Lemon */
+.fa.module_passed { color: #75C195; }
+.result_unknown a i.fa { color:#ff9 ;}
+.result_softfail a i.fa { color:#A3C16C ;}
+.fa.module_softfail { color: #A3C16C; }
+.result_failed a i.fa {color: #FF4E46; }
+.fa.module_failed { color: #FF4E46; }
+.result_incomplete a i.fa { color: #AF1E11;}
+.fa.module_none { color:#bebebe;}
+
+table#users td.role {
+    white-space: nowrap;
+}
+
+/* Hidding the radiobuttons & checkboxes */
+table#users input[type="radio"] {
+    display: none;
+}
+
+/* Styling the "check" status */
+table#users  input[type="radio"]:checked + label .fa-circle {
+    display: block;
+    color: black;
+}
+
+/* Styling radiobuttons */
+table#users  label .fa-circle {
+    color: #C8D4AC;
+}
+
+/* Styling radiobuttons */
+table#users input[type="radio"]:checked + label .fa-circle-o {
+    display: none;
+}
+
+/* vim: set sw=4 et: */

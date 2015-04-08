@@ -1,0 +1,165 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2014 SUSE Linux Products GmbH
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+=head1 dump_templates
+
+dump_templates - dump openQA templates
+
+=head1 SYNOPSIS
+
+dump_templates [OPTIONS] [TABLES...]
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--host> HOST
+
+connect to specified host, defaults to localhost
+
+=item B<--apibase> HOST
+
+=item B<--apikey> HOST
+
+=item B<--apisecret> HOST
+
+override values from config file
+
+=item B<--tmp>
+
+obsolete, not used
+
+=item B<--json>
+
+dump as json
+
+=item B<--help, -h>
+
+print help
+
+=back
+
+=head1 DESCRIPTION
+
+Dump openQA database tables for Machines TestSuites Products
+JobTemplates e.g. to load them on another instance.
+
+=cut
+
+BEGIN {
+    use FindBin qw($Bin);
+    use lib "$Bin/../lib";
+}
+
+use strict;
+use Data::Dump;
+use v5.10;
+use Getopt::Long;
+use Mojo::Util qw(decamelize);
+use Mojo::URL;
+use OpenQA::Client;
+
+Getopt::Long::Configure("no_ignore_case");
+
+my %tables = map { $_ => 1 } qw/Machines TestSuites Products JobTemplates/;
+
+my %options;
+
+sub usage($) {
+    my $r = shift;
+    eval "use Pod::Usage; pod2usage($r);";
+    if ($@) {
+        die "cannot display help, install perl(Pod::Usage)\n";
+    }
+    exit $_[0];
+}
+
+GetOptions(\%options, "json", "tmp","host=s","apibase=s","apikey:s","apisecret:s","help|h",) or usage(1);
+
+usage(0) if $options{help};
+
+if (@ARGV) {
+    my %want = map { $_ => 1 } @ARGV;
+    for my $t (keys %tables) {
+        $tables{$t} = $want{$t}?1:0;
+    }
+}
+
+$options{'host'} ||= 'localhost';
+$options{'apibase'} ||= '/api/v1';
+
+my $url;
+if ($options{'host'} !~ '/') {
+    $url = Mojo::URL->new();
+    $url->host($options{'host'});
+    $url->scheme('http');
+}
+else {
+    $url = Mojo::URL->new($options{'host'});
+}
+
+my $client = OpenQA::Client->new(apikey => $options{'apikey'}, apisecret => $options{'apisecret'}, api => $url->host);
+
+my %result;
+
+for my $table (qw/Machines TestSuites Products JobTemplates/) {
+    if ($tables{$table}) {
+        $url->path($options{'apibase'} . '/' . decamelize($table));
+        my $res = $client->get($url)->res;
+        if ($res->code == 200) {
+            my %tmp = (%result, %{$res->json});
+            %result = %tmp;
+        }
+        else {
+            printf STDERR "ERROR: %s - %s\n", $res->code, $res->message;
+            if ($res->body) {
+                dd($res->json || $res->body);
+            }
+            exit(1);
+        }
+    }
+}
+
+
+for my $table (keys %result) {
+    for my $i (0..$#{$result{$table}}) {
+        delete $result{$table}->[$i]->{id};
+        if ($result{$table}->[$i]->{settings}) {
+            for my $s (0..$#{$result{$table}->[$i]->{settings}}) {
+                delete $result{$table}->[$i]->{settings}->[$s]->{id};
+            }
+        }
+        if ($result{$table}->[$i]->{product}) {
+            delete $result{$table}->[$i]->{product}->{id};
+        }
+        if ($result{$table}->[$i]->{machine}) {
+            delete $result{$table}->[$i]->{machine}->{id};
+        }
+        if ($result{$table}->[$i]->{test_suite}) {
+            delete $result{$table}->[$i]->{test_suite}->{id};
+        }
+    }
+}
+
+if ($options{json}) {
+    use JSON;
+    print JSON->new->pretty->encode(\%result);
+}
+else {
+    dd \%result;
+}
