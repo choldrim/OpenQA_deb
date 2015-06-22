@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkdir -p $HOME/OpenQA
+
+ln -sfn /var/lib/openqa/share/factory/iso $HOME/OpenQA/iso
+ln -sfn /var/lib/openqa/share/tests/deepin $HOME/OpenQA/deepin
+ln -sfn /var/lib/openqa/share/testresults $HOME/OpenQA/testresults

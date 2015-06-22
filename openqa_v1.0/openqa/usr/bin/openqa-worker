@@ -1,0 +1,8 @@
+#!/bin/bash
+export OPENQA_CONFIG="/etc/openqa"
+instance=1
+if [ $# -gt 0 ]; then
+    instance=$1
+fi
+rm -rf /var/lib/openqa/pool/$instance
+perl /usr/share/openqa/script/worker --instance $instance --isotovideo /usr/lib/os-autoinst/isotovideo --verbose --no-cleanup

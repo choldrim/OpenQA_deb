@@ -1,0 +1,27 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: $baseFontSize*1.5+15px;
+}
+
+.footer {
+  #footer-content {
+    margin-top: 10px;
+  }
+  #footer-legal {
+    margin-top: 5px;
+    border-top: 1px dotted $gray;
+    text-align: center;
+    color: $gray;
+  }
+
+  height: $baseFontSize*1.5+15px;
+  background-color: $bodyBackground;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+   

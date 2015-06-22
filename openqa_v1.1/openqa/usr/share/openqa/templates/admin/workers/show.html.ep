@@ -1,0 +1,36 @@
+% layout 'admin';
+% title "Worker " . $worker->host . ":" . $worker->instance;
+
+% content_for 'ready_function' => begin
+    $('.timeago').timeago();
+    setupResultButtons();
+% end
+
+<div class="grid_16 box box-shadow alpha">
+    <h2><%= title %></h2>
+
+    %= include 'layouts/info'
+
+    <div><span>Host: </span><%= $worker->host %></div>
+    <div><span>Instance: </span><%= $worker->instance %></div>
+    <div><span>Seen: </span><abbr class="timeago" title="<%= $worker->t_updated->datetime() %>Z"><%= format_time($worker->t_updated) %></abbr></div>
+    <div><span>Status: </span>
+        %= include 'admin/workers/worker_status'
+    </div>
+
+    <h3>Properties</h3>
+    <table>
+        <thead>
+            <th>Key</th>
+            <th>Value</th>
+        </thead>
+        <tbody>
+            % for my $p ( sort map { $_->key } $worker->properties->all ) {
+                <tr>
+                    <td><%= $p %></td>
+                    <td><%= $worker->get_property($p) %></td>
+                </tr>
+            % }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+
+import json
+#import os
+import subprocess
+import sys
+
+host = "localhost"
+clientPath = "/usr/share/openqa/script/client"
+isotovieoPath = "/usr/lib/os-autoinst/isotovideo"
+
+#os.putenv("OPENQA_CONFIG", "/etc/openqa")
+
+def startWebUI():
+    try:
+        cmds = []
+        #cmds.append("/bin/bash")
+        cmds.append("openqa-startup")
+        subprocess.check_call(cmds, stdout=sys.stdout)
+    except subprocess.CalledProcessError as e:
+        print (e)
+        print ("output: ", e.output.decode("utf-8"))
+        #raise e
+
+def genTemplates(rawParams):
+    # str => dict
+    params = dict([tuple(kv.split("=")) for kv in rawParams.split(",")])
+
+    arch = params["ARCH"]
+    distri = params["DISTRI"]
+    flavor = params["FLAVOR"]
+    version = params["VERSION"]
+
+    # JobTemplates
+    JobTemplates = []
+
+    if params.get("ARCH") == "64bit":
+        machine = {"name" : "64bit"}
+    else:
+        machine = {"name" : "32bit"}
+
+    prio = 20
+
+    product = {
+            "arch" : arch,
+            "distri" : distri,
+            "flavor" : flavor,
+            "version" : version
+            }
+    test_suite = {"name" : "deepin_installation"}
+    JobTemplates.append({
+        "machine":machine,
+        "prio":prio,
+        "product":product,
+        "test_suite":test_suite})
+
+    # Machines
+    Machines = []
+    if params.get("ARCH") == "64bit":
+        Machines.append({
+            "backend":"qemu",
+            "name":"64bit",
+            "settings" : [{"key":"QEMUCPU", "value":"qemu64"}]
+            })
+    else:
+        Machines.append({
+            "backend":"qemu",
+            "name":"32bit",
+            "settings" : [{"key":"QEMUCPU", "value":"kvm32"}]
+            })
+
+    # Products
+    Products = []
+    settings = []
+    # settings.append({"key":"VNC","value":""})
+    # settings.append({"key":"USERNAME","value":"deepin"})
+    # settings.append({"key":"USERPWD","value":"deepin"})
+    Products.append({
+            "arch" : arch,
+            "distri" : distri,
+            "flavor" : flavor,
+            "version" : version,
+            "settings" : settings
+            })
+
+    # combine templates
+    templates = {
+            "JobTemplates":JobTemplates,
+            "Machines":Machines,
+            "Products":Products
+            }
+
+    templatesStr = str(templates).replace(":", "=>")
+
+    templatesFile = "templates"
+    with open(templatesFile, "w") as f:
+        f.write(templatesStr)
+
+    return templatesFile
+
+def loadTemplates(templatesFile):
+    cmds = []
+    cmds.append("/usr/share/openqa/script/load_templates")
+    cmds.append(templatesFile)
+
+    try:
+        result = subprocess.check_output(cmds)
+        result = result.decode("utf-8")
+        print ("load_templates result: \n", result)
+    except subprocess.CalledProcessError as e:
+        print (e)
+        print ("output: ", e.output.decode("utf-8"))
+        #raise e
+
+
+def resultToJsonStr(result):
+    if len(result) < 2:  # at least "{}"
+        return
+    result = result.decode("utf-8")
+    jsonStr = result.replace(r'\"', '"')[1:-2]
+    return jsonStr
+
+
+def initParams(params):
+    if "DISTRI" in params:
+        print("You don't need set the DIRSTRI in params, please remove it and try again.")
+        quit(-1)
+
+    if len(params) == 0:
+        params += "DISTRI=deepin"
+    else:
+        params += ",DISTRI=deepin"
+
+    if "ISO" not in params:
+        params += ",ISO=deepin-desktop-amd64.iso"
+
+    if "FLAVOR" not in params:
+        params += ",FLAVOR=DVD"
+
+    if "ARCH" not in params:
+        params += ",ARCH=x86_64"
+
+    if "VERSION" not in params:
+        params += ",VERSION=2014.2"
+
+    if "USERNAME" not in params:
+        params += ",USERNAME=deepin"
+
+    if "USERPWD" not in params:
+        params += ",USERPWD=deepin"
+
+    if "HDDSIZEGB" not in params:
+        params += ",HDDSIZEGB=10"
+
+    return params
+
+
+def scheduledJobs(params):
+    cmds = []
+    cmds.append(clientPath)
+    cmds.append("--host")
+    cmds.append(host)
+    cmds.append("--rawjson")
+    cmds.append("isos")
+    cmds.append("post")
+    cmds += [ p.strip() for p in params.split(",") if len(p.strip()) > 0]
+
+    # execute
+    try:
+        result = subprocess.check_output(cmds, env={"OPENQA_CONFIG":"/etc/openqa"})
+    except subprocess.CalledProcessError as e:
+        print (e)
+        result = e.output.decode("utf-8")
+        print ("output: ", result)
+        quit(-1)
+
+    jsonStr = resultToJsonStr(result)
+
+    if (jsonStr == None):
+        print("Get a null result from server when scheduled jobs, abort.")
+        quit(-1)
+
+    jsonData = json.loads(jsonStr)
+    jobIds = jsonData.get("ids")
+
+    if len(jobIds) == 0:
+        print("No job has been created, please check your params for Startup")
+        quit(-1)
+
+    print("scheduled Result:", jsonStr)
+
+    return jobIds
+
+def startWorker():
+    cmds = []
+    cmds.append("/usr/share/openqa/script/worker")
+    cmds.append("--instance")
+    cmds.append("1")
+    cmds.append("--isotovideo")
+    cmds.append(isotovieoPath)
+    #cmds.append("--no-cleanup")
+    try:
+        subprocess.check_call(cmds, stdout=sys.stdout)
+    except subprocess.CalledProcessError as e:
+        print (e)
+        print ("output: ", e.output.decode("utf-8"))
+        #raise e
+
+if __name__ == "__main__":
+
+    rawParams = ""
+    if len(sys.argv) == 2:
+        rawParams = sys.argv[1]
+
+    if len(sys.argv) > 2:
+        rawParams = ",".join(sys.argv[1:])
+
+    params = initParams(rawParams)
+
+    #print ("params: ", params)
+    #quit(0)
+
+    #startWebUI()
+
+    #tempFile = genTemplates(params)
+    #tempFile = os.path.join(os.getcwd(), tempFile)
+
+    #loadTemplates(tempFile)
+
+    #print("params: ", params)
+
+    scheduledJobs(params)
+
+    #startWorker()
+

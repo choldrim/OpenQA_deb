@@ -1,0 +1,124 @@
+#!/usr/bin/env perl
+
+# Copyright (C) 2014 SUSE Linux Products GmbH
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+BEGIN {
+    use FindBin qw($Bin);
+    use lib "$Bin/../lib";
+}
+
+use strict;
+use warnings;
+use DBIx::Class::DeploymentHandler;
+use File::Basename qw/dirname/;
+use POSIX qw/getuid getgid setuid setgid/;
+use OpenQA::Schema::Schema;
+use Getopt::Long;
+use IO::Dir;
+
+my $help=0;
+my $prepare_init=0;
+my $init_database=0;
+my $force=0;
+my $user;
+
+my $result = GetOptions(
+    "help"          => \$help,
+    "prepare_init"  => \$prepare_init,
+    "init_database" => \$init_database,
+    "force"         => \$force,
+    "user=s"        => \$user,
+);
+
+if (!$prepare_init and !$init_database) {
+    $help=1;
+}
+
+if ($help) {
+    print "Usage: $0 [flags]\n\n";
+    print "  --prepare_init  : Create the deployment files used to initialize the database.\n";
+    print "                    Don't forget to increase the version before using this\n";
+    print "                    and note those files should be commited to the source repo.\n";
+    print "  --init_database : Use the generated deployment files created with --prepare_init\n";
+    print "                    to actually initialize a database.\n";
+    print "  --force         : Force overwriting existing data.\n";
+    print "  --user=login    : Change uid before connecting the DB.\n";
+    print "  --help          : This help message.\n";
+    exit;
+}
+
+if ($user) {
+    my $uid = getpwnam($user) || die "No such login $user";
+    setuid($uid) || die "can't suid to $user";
+}
+
+my $script_directory = "$FindBin::Bin/../dbicdh";
+my @databases = qw( MySQL SQLite PostgreSQL );
+my $schema = OpenQA::Schema::connect_db();
+
+if ($schema->dsn =~ /:SQLite:dbname=(.*)/) {
+    my $dbdir = dirname($1);
+    die "$dbdir does not exist\n" unless -d $dbdir;
+    my @s = stat(_);
+    if (getgid() != $s[5]) {
+        setgid($s[5]) or die "can't change gid to $s[5]: $!\n";
+    }
+    if (getuid() != $s[4]) {
+        setuid($s[4]) or die "can't change uid to $s[4]: $!\n";
+    }
+
+    # speed this up a bit
+    $schema->storage->dbh_do(
+        sub {
+            my ($storage, $dbh, @args) = @_;
+            $dbh->do("PRAGMA synchronous = OFF");
+        }
+    );
+}
+
+my $dh = DBIx::Class::DeploymentHandler->new(
+    {
+        schema              => $schema,
+        script_directory    => $script_directory,
+        databases           => \@databases,
+        sql_translator_args => { add_drop_table => 0, producer_args => { sqlite_version => '3.7' }},
+        force_overwrite     => $force,
+    }
+);
+
+my $version    = $dh->schema_version;
+
+my %deploy_dir;
+if ($prepare_init) {
+    foreach my $db (@databases) {
+        tie %deploy_dir, 'IO::Dir', "$script_directory/$db/deploy";
+
+        if ( exists $deploy_dir{$version} and not $force) {
+            print "The deploy directory already contains the schema for the current version.\n";
+            print "Use the --force option if you want to overwrite the contents of the $script_directory/$db/deploy/$version directory\n";
+            exit 1;
+        }
+    }
+
+    $dh->prepare_install;
+}
+if ($init_database) {
+    # Create the schema
+    $dh->install;
+}
+
+# vim: set sw=4 sts=4 et:

@@ -1,4 +1,0 @@
-#!/bin/bash
-service apache2 restart
-export OPENQA_CONFIG="/etc/openqa"
-/usr/share/openqa/script/openqa daemon -m production --proxy

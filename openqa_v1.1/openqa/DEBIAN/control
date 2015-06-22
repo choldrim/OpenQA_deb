@@ -1,0 +1,11 @@
+Package: openqa
+Source: openqa
+Version: 1.0.1
+Architecture: all
+Maintainer: leaeasy <leaeasy@gmail.com>
+Installed-Size: 114
+Depends: libcrypt-dh-gmp-perl,libgmp-dev, qemu, apache2, xtightvncviewer, libtheora-dev, libpng12-dev, libopencv-dev, pkg-config, libtool, autoconf, automake, g++, cpanminus, libgtk2-perl, ruby-sass
+Section: utils
+Priority: optional
+Homepage: https://openqa.deepin.io/
+Description: Openqa
