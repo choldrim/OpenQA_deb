@@ -114,7 +114,9 @@ sub mouse_hide {
     my ($self, $args) = @_;
 
     $self->{'mouse'}->{'x'} = $self->{'vnc'}->width - 1;
-    $self->{'mouse'}->{'y'} = $self->{'vnc'}->height - 1;
+    #$self->{'mouse'}->{'y'} = $self->{'vnc'}->height - 1;
+    #alter by choldrim
+    $self->{'mouse'}->{'y'} = 1;
 
     my $border_offset = int($args->{border_offset});
     $self->{'mouse'}->{'x'} -= $border_offset;

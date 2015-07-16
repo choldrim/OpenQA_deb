@@ -11,17 +11,14 @@ mkdir -p /var/lib/openqa/images
 mkdir -p /var/lib/openqa/db
 mkdir -p /var/lib/openqa/pool
 mkdir -p /var/lib/openqa/share/testresults
-# mkdir -p /var/lib/openqa/share/tests
-# mkdir -p /var/lib/openqa/share/tests/deepin
 install -d -m 777 /var/lib/openqa/share/factory/iso
 install -d -m 777 /var/lib/openqa/share/tests/deepin
-#install -D -m 644 /dev/null /var/lib/openqa/db/db.sqlite
 
 # links
 ###########################################################################
 ln -sfn /var/lib/openqa/share/factory /var/lib/openqa/factory
 ln -sfn /var/lib/openqa/share/tests /var/lib/openqa/tests
-ln -sfn /var/lib/openqa/share/testresults /var/lib/openqa/testresults
+ln -sfn /var/lib/openqa/testresults /var/lib/openqa/testresults
 ln -sfn /usr/share/openqa/script /var/lib/openqa/script
 
 # database

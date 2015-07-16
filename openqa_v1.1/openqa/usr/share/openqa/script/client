@@ -89,7 +89,7 @@ sub usage($) {
     }
 }
 
-GetOptions(\%options,"host=s","apibase=s","verbose|v","apikey:s","apisecret:s", "params=s", "help|h|?",) or usage(1);
+GetOptions(\%options,"host=s","apibase=s","verbose|v","apikey:s","apisecret:s", "params=s", "rawjson", "help|h|?",) or usage(1);
 
 usage(1) unless @ARGV;
 $options{'host'} ||= 'localhost';
@@ -141,7 +141,12 @@ my $client = OpenQA::Client->new(apikey => $options{'apikey'}, apisecret => $opt
 
 my $res = $client->$method($url)->res;
 if ($res->code == 200) {
-    dd($res->json || $res->body);
+    if ($options{'rawjson'}) {
+        dd($res->body);
+    }
+    else{
+        dd($res->json || $res->body);
+    }
 }
 else {
     printf STDERR "ERROR: %s - %s\n", $res->code, $res->message;

@@ -334,7 +334,9 @@ sub start_qemu() {
 
         if ($arch_supports_boot_order) {
             if ( $vars->{PXEBOOT} ) {
-                push( @params, "-boot", "n");
+                push(@params, "-boot", "once=n,menu=on");
+                push(@params, "-net", "bridge,br=br0");
+                push(@params, "-net",  "nic,model=virtio")
             }
             elsif ( $vars->{BOOTFROM} ) {
                 push( @params, "-boot", "order=$vars->{BOOTFROM},menu=on,splash-time=5000" );

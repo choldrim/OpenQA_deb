@@ -537,6 +537,7 @@ my $keymap_x11 = {
     'pgup' => 0xff55,
     'pgdn' => 0xff56,
     'sysrq' => 0xff15,
+    'win' => 0xffec,
 };
 
 sub init_x11_keymap {
@@ -1023,5 +1024,5 @@ Copyright (C) 2006, Leon Brocard
 This module is free software; you can redistribute it or modify it
 under the same terms as Perl itself.
 
-Copyright (C) 2014, Stephan Kulow (coolo@suse.de) 
+Copyright (C) 2014, Stephan Kulow (coolo@suse.de)
 adapted to be purely useful for qemu/openqa

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import configparser
 import json
-#import os
+import os
 import subprocess
 import sys
 
 host = "localhost"
 clientPath = "/usr/share/openqa/script/client"
 isotovieoPath = "/usr/lib/os-autoinst/isotovideo"
-
-#os.putenv("OPENQA_CONFIG", "/etc/openqa")
+defaultParamsConfPath = "/etc/openqa/deepin.ini"
 
 def startWebUI():
     try:
@@ -122,7 +122,9 @@ def resultToJsonStr(result):
     return jsonStr
 
 
+
 def initParams(params):
+
     if "DISTRI" in params:
         print("You don't need set the DIRSTRI in params, please remove it and try again.")
         quit(-1)
@@ -133,38 +135,105 @@ def initParams(params):
         params += ",DISTRI=deepin"
 
     if "ISO" not in params:
-        params += ",ISO=deepin-desktop-amd64.iso"
+        iso = getDefaultParam("ISO")
+        if iso:
+            params += ",ISO=%s" % iso
+        else:
+            params += ",ISO=deepin-sid-amd64.iso"
 
     if "FLAVOR" not in params:
-        params += ",FLAVOR=DVD"
+        flavor = getDefaultParam("FLAVOR")
+        if flavor:
+            params += ",FLAVOR=%s" % flavor
+        else:
+            params += ",FLAVOR=SID-DVD"
 
     if "ARCH" not in params:
-        params += ",ARCH=x86_64"
+        arch = getDefaultParam("ARCH")
+        if arch:
+            params += ",ARCH=%s" % arch
+        else:
+            params += ",ARCH=x86_64"
 
     if "VERSION" not in params:
-        params += ",VERSION=2014.2"
+        version = getDefaultParam("VERSION")
+        if version:
+            params += ",VERSION=%s" % version
+        else:
+            params += ",VERSION=2015"
 
     if "USERNAME" not in params:
-        params += ",USERNAME=deepin"
+        username = getDefaultParam("USERNAME")
+        if username:
+            params += ",USERNAME=%s" % username
+        else:
+            params += ",USERNAME=deepin"
 
     if "USERPWD" not in params:
-        params += ",USERPWD=deepin"
+        userpwd = getDefaultParam("USERPWD")
+        if userpwd:
+            params += ",USERPWD=%s" % userpwd
+        else:
+            params += ",USERPWD=deepin"
 
     if "HDDSIZEGB" not in params:
-        params += ",HDDSIZEGB=10"
+        size = getDefaultParam("HDDSIZEGB")
+        if size:
+            params += ",HDDSIZEGB=%s" % size
+        else:
+            params += ",HDDSIZEGB=10"
+
+    paramDict = getExtensionParams()
+    for (k, v) in paramDict.items():
+        k = k.upper()
+        if k not in params:
+            params += ",%s=%s" %(k, v)
 
     return params
 
+
+defaultParamsConfig = None
+def getDefaultParam(key):
+
+    global defaultParamsConfig
+    if not defaultParamsConfig:
+        if not os.path.exists(defaultParamsConfPath):
+            return ""
+        defaultParamsConfig = configparser.ConfigParser()
+        defaultParamsConfig.read(defaultParamsConfPath)
+
+    if key in defaultParamsConfig["DEFAULT"]:
+        return defaultParamsConfig["DEFAULT"][key]
+
+    return ""
+
+def getExtensionParams():
+
+    params = {}
+
+    if not os.path.exists(defaultParamsConfPath):
+        return params
+    config = configparser.ConfigParser()
+    config.read(defaultParamsConfPath)
+
+    section = "EXTENSION"
+    items = config.items(section)
+    for (k, v) in items:
+        params[k] = v
+
+    return params
 
 def scheduledJobs(params):
     cmds = []
     cmds.append(clientPath)
     cmds.append("--host")
     cmds.append(host)
-    cmds.append("--rawjson")
+    #cmds.append("--rawjson")
     cmds.append("isos")
     cmds.append("post")
     cmds += [ p.strip() for p in params.split(",") if len(p.strip()) > 0]
+
+    #print (" ".join(cmds))
 
     # execute
     try:
@@ -174,6 +243,11 @@ def scheduledJobs(params):
         result = e.output.decode("utf-8")
         print ("output: ", result)
         quit(-1)
+
+    # tmp
+    result = result.decode("utf-8")
+    print ("output: ", result)
+    return 0
 
     jsonStr = resultToJsonStr(result)
 
@@ -217,9 +291,6 @@ if __name__ == "__main__":
         rawParams = ",".join(sys.argv[1:])
 
     params = initParams(rawParams)
-
-    #print ("params: ", params)
-    #quit(0)
 
     #startWebUI()
 
