@@ -167,7 +167,9 @@ sub job_create {
         die "invalid character in $a->{name}\n" if $a->{name} =~ /\//; # TODO: use whitelist?
 
         unless (-e sprintf("%s/%s/%s", $OpenQA::Utils::assetdir, $a->{type}, $a->{name})) {
-            die "$a->{name} does not exist\n";
+            # alter by choldrim
+            # die "$a->{name} does not exist\n";
+            warn "[warn]  $a->{name} does not exist\n";
         }
     }
 

@@ -113,7 +113,10 @@ sub engine_workit($){
         print "setting $k=$v\n" if $verbose;
         $vars{$k} = $v;
     }
-    $vars{CASEDIR} = OpenQA::Utils::testcasedir($vars{DISTRI}, $vars{VERSION});
+
+    # updated by choldrim
+    # $vars{CASEDIR} = OpenQA::Utils::testcasedir($vars{DISTRI}, $vars{VERSION});
+    $vars{CASEDIR} ||= OpenQA::Utils::testcasedir($vars{DISTRI}, $vars{VERSION});
     _save_vars(\%vars);
 
     # create tmpdir for qemu to write here

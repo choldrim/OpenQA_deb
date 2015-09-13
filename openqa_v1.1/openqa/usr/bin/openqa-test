@@ -12,107 +12,6 @@ clientPath = "/usr/share/openqa/script/client"
 isotovieoPath = "/usr/lib/os-autoinst/isotovideo"
 defaultParamsConfPath = "/etc/openqa/deepin.ini"
 
-def startWebUI():
-    try:
-        cmds = []
-        #cmds.append("/bin/bash")
-        cmds.append("openqa-startup")
-        subprocess.check_call(cmds, stdout=sys.stdout)
-    except subprocess.CalledProcessError as e:
-        print (e)
-        print ("output: ", e.output.decode("utf-8"))
-        #raise e
-
-def genTemplates(rawParams):
-    # str => dict
-    params = dict([tuple(kv.split("=")) for kv in rawParams.split(",")])
-
-    arch = params["ARCH"]
-    distri = params["DISTRI"]
-    flavor = params["FLAVOR"]
-    version = params["VERSION"]
-
-    # JobTemplates
-    JobTemplates = []
-
-    if params.get("ARCH") == "64bit":
-        machine = {"name" : "64bit"}
-    else:
-        machine = {"name" : "32bit"}
-
-    prio = 20
-
-    product = {
-            "arch" : arch,
-            "distri" : distri,
-            "flavor" : flavor,
-            "version" : version
-            }
-    test_suite = {"name" : "deepin_installation"}
-    JobTemplates.append({
-        "machine":machine,
-        "prio":prio,
-        "product":product,
-        "test_suite":test_suite})
-
-    # Machines
-    Machines = []
-    if params.get("ARCH") == "64bit":
-        Machines.append({
-            "backend":"qemu",
-            "name":"64bit",
-            "settings" : [{"key":"QEMUCPU", "value":"qemu64"}]
-            })
-    else:
-        Machines.append({
-            "backend":"qemu",
-            "name":"32bit",
-            "settings" : [{"key":"QEMUCPU", "value":"kvm32"}]
-            })
-
-    # Products
-    Products = []
-    settings = []
-    # settings.append({"key":"VNC","value":""})
-    # settings.append({"key":"USERNAME","value":"deepin"})
-    # settings.append({"key":"USERPWD","value":"deepin"})
-    Products.append({
-            "arch" : arch,
-            "distri" : distri,
-            "flavor" : flavor,
-            "version" : version,
-            "settings" : settings
-            })
-
-    # combine templates
-    templates = {
-            "JobTemplates":JobTemplates,
-            "Machines":Machines,
-            "Products":Products
-            }
-
-    templatesStr = str(templates).replace(":", "=>")
-
-    templatesFile = "templates"
-    with open(templatesFile, "w") as f:
-        f.write(templatesStr)
-
-    return templatesFile
-
-def loadTemplates(templatesFile):
-    cmds = []
-    cmds.append("/usr/share/openqa/script/load_templates")
-    cmds.append(templatesFile)
-
-    try:
-        result = subprocess.check_output(cmds)
-        result = result.decode("utf-8")
-        print ("load_templates result: \n", result)
-    except subprocess.CalledProcessError as e:
-        print (e)
-        print ("output: ", e.output.decode("utf-8"))
-        #raise e
-
 
 def resultToJsonStr(result):
     if len(result) < 2:  # at least "{}"
@@ -125,58 +24,62 @@ def resultToJsonStr(result):
 
 def initParams(params):
 
-    if "DISTRI" in params:
+    params = params.strip()
+    keys = [p.split("=")[0].strip() for p in params.split(" ") if "=" in p]
+
+    if "DISTRI" in keys:
         print("You don't need set the DIRSTRI in params, please remove it and try again.")
         quit(-1)
 
-    if len(params) == 0:
+    if len(params.strip()) == 0:
         params += "DISTRI=deepin"
     else:
         params += ",DISTRI=deepin"
 
-    if "ISO" not in params:
+    if "ISO" not in keys:
         iso = getDefaultParam("ISO")
         if iso:
             params += ",ISO=%s" % iso
         else:
-            params += ",ISO=deepin-sid-amd64.iso"
+            build = getDefaultParam("BUILD")
+            params += ",ISO=deepin-sid-amd64%s%s.iso" % ("_",  build)
 
-    if "FLAVOR" not in params:
+    if "FLAVOR" not in keys:
         flavor = getDefaultParam("FLAVOR")
         if flavor:
             params += ",FLAVOR=%s" % flavor
         else:
             params += ",FLAVOR=SID-DVD"
 
-    if "ARCH" not in params:
+    if "ARCH" not in keys:
         arch = getDefaultParam("ARCH")
         if arch:
             params += ",ARCH=%s" % arch
         else:
             params += ",ARCH=x86_64"
 
-    if "VERSION" not in params:
+    if "VERSION" not in keys:
         version = getDefaultParam("VERSION")
         if version:
             params += ",VERSION=%s" % version
         else:
             params += ",VERSION=2015"
 
-    if "USERNAME" not in params:
+    if "USERNAME" not in keys:
         username = getDefaultParam("USERNAME")
         if username:
             params += ",USERNAME=%s" % username
         else:
             params += ",USERNAME=deepin"
 
-    if "USERPWD" not in params:
+    if "USERPWD" not in keys:
         userpwd = getDefaultParam("USERPWD")
         if userpwd:
             params += ",USERPWD=%s" % userpwd
         else:
             params += ",USERPWD=deepin"
 
-    if "HDDSIZEGB" not in params:
+    if "HDDSIZEGB" not in keys:
         size = getDefaultParam("HDDSIZEGB")
         if size:
             params += ",HDDSIZEGB=%s" % size
@@ -233,7 +136,7 @@ def scheduledJobs(params):
     cmds.append("post")
     cmds += [ p.strip() for p in params.split(",") if len(p.strip()) > 0]
 
-    #print (" ".join(cmds))
+    # print (" ".join(cmds))
 
     # execute
     try:
@@ -292,16 +195,5 @@ if __name__ == "__main__":
 
     params = initParams(rawParams)
 
-    #startWebUI()
-
-    #tempFile = genTemplates(params)
-    #tempFile = os.path.join(os.getcwd(), tempFile)
-
-    #loadTemplates(tempFile)
-
-    #print("params: ", params)
-
     scheduledJobs(params)
-
-    #startWorker()
 
